@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.17
+// Model version                  : 1.22
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Mon Dec 16 01:24:36 2024
+// C/C++ source code generated on : Tue Dec 17 15:41:07 2024
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -36,10 +36,10 @@ class send final
   // Block states (default storage) for system '<Root>'
   struct DW_send_T {
     float tag;                         // '<Root>/Chart1'
-    uint16_t temporalCounter_i1;       // '<Root>/Chart1'
     uint8_t c_ACK;                     // '<Root>/Chart1'
     uint8_t data;                      // '<Root>/Chart1'
     uint8_t is_c2_send;                // '<Root>/Chart1'
+    uint8_t temporalCounter_i1;        // '<Root>/Chart1'
     bool isNotInit;                    // '<Root>/Chart1'
   };
 
@@ -125,6 +125,7 @@ class send final
   bool send_checkACK(uint8_t ack, uint8_t check);
   uint8_t send_crc4(uint8_t b_value, float t);
   uint16_t send_calculation(uint8_t input, float c_tag);
+  uint8_t send_reset_ACK(uint8_t ca);
 
   // Real-Time Model
   RT_MODEL_send_T send_M;

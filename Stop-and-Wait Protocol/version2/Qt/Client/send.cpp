@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.17
+// Model version                  : 1.22
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Mon Dec 16 01:24:36 2024
+// C/C++ source code generated on : Tue Dec 17 15:41:07 2024
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -153,20 +153,31 @@ uint16_t send::send_calculation(uint8_t input, float c_tag)
   return output;
 }
 
+// Function for Chart: '<Root>/Chart1'
+uint8_t send::send_reset_ACK(uint8_t ca)
+{
+  uint8_t new_ca;
+  if (ca == 255) {
+    new_ca = 0U;
+  } else {
+    new_ca = static_cast<uint8_t>(ca + 1);
+  }
+
+  return new_ca;
+}
+
 // Model step function
 void send::step()
 {
-  int32_t tmp;
   bool c;
 
   // Chart: '<Root>/Chart1' incorporates:
   //   Inport: '<Root>/ACK'
 
-  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 511) {
-    send_DW.temporalCounter_i1 = static_cast<uint16_t>
-      (send_DW.temporalCounter_i1 + 1);
+  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 255U) {
+    send_DW.temporalCounter_i1 = static_cast<uint8_t>(send_DW.temporalCounter_i1
+      + 1);
   }
-
 
   send_DW.isNotInit = true;
   switch (send_DW.is_c2_send) {
@@ -185,30 +196,34 @@ void send::step()
     break;
 
    case send_IN_Send_packet:
-    // Outport: '<Root>/ready'
-    send_Y.ready = false;
-    send_DW.temporalCounter_i1 = 0U;
-    send_DW.is_c2_send = send_IN_Wait_for_ack;
+    if (send_checkACK(send_U.ACK, send_DW.c_ACK)) {
+      send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
+      send_DW.tag = 1.0F - send_DW.tag;
+
+      // Outport: '<Root>/ready'
+      send_Y.ready = false;
+      send_DW.is_c2_send = send_IN_Idle;
+    } else {
+      // Outport: '<Root>/ready'
+      send_Y.ready = false;
+      send_DW.temporalCounter_i1 = 0U;
+      send_DW.is_c2_send = send_IN_Wait_for_ack;
+    }
     break;
 
    default:
     // case IN_Wait_for_ack:
-    if (send_DW.temporalCounter_i1 >= 400) {
+    if (send_checkACK(send_U.ACK, send_DW.c_ACK)) {
+      send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
+      send_DW.tag = 1.0F - send_DW.tag;
+      send_DW.is_c2_send = send_IN_Idle;
+    } else if (send_DW.temporalCounter_i1 >= 200) {
       // Outport: '<Root>/packet'
       send_Y.packet = send_calculation(send_DW.data, send_DW.tag);
 
       // Outport: '<Root>/ready'
       send_Y.ready = true;
       send_DW.is_c2_send = send_IN_Send_packet;
-    } else if (send_checkACK(send_U.ACK, send_DW.c_ACK)) {
-      tmp = static_cast<int32_t>(send_DW.c_ACK + 1U);
-      if (send_DW.c_ACK + 1U > 255U) {
-        tmp = 255;
-      }
-
-      send_DW.c_ACK = static_cast<uint8_t>(tmp);
-      send_DW.tag = 1.0F - send_DW.tag;
-      send_DW.is_c2_send = send_IN_Idle;
     }
     break;
   }

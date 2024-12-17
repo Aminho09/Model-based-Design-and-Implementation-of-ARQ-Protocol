@@ -24,6 +24,8 @@ void rt_OneStep(void){
   // Step the model
   send_Obj.step();
 
+//  qDebug() << "step ran ";
+
   // Get model outputs here
 
   // Indicate task complete
