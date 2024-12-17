@@ -65,10 +65,10 @@ public slots:
                 // Retrieve the output (data and ACK)
                 uint8_t ack = receive_Obj.getACK();
                 uint16_t processedData = receive_Obj.getdata();
-                qDebug() << processedData;
 
                 std::cout << "Received Packet: " << packet << ", Processed Data: " << processedData
-                          << ", ACK: " << static_cast<int>(ack) << std::endl;
+                          << ", letter: " << static_cast<char>(packet)
+                          << ", ACK: " << static_cast<int>(ack) <<  std::endl;
 
                 // Send the ACK back through the sender socket
                 sendACK(ack);
