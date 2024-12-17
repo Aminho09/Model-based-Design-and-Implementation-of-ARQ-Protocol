@@ -1,59 +1,113 @@
-// Server Code using Qt
 #include <QCoreApplication>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QHostAddress>
+#include <QTimer>
+#include <QObject>
 #include <iostream>
-#include <queue>
 #include <string>
+#include "receive.h"
 
-#define PORT 8080
+// External declaration of the receive model
+receive receive_Obj;
 
-class Server : public QTcpServer {
+// Class for handling TCP connections
+class ReceiveWorker : public QObject
+{
     Q_OBJECT
 
 public:
-    Server(QObject *parent = nullptr) : QTcpServer(parent) {
-        if (!this->listen(QHostAddress::Any, PORT)) {
-            std::cerr << "Server could not start!" << std::endl;
-        } else {
-            std::cout << "Server started, waiting for connections..." << std::endl;
+    explicit ReceiveWorker(QObject *parent = nullptr)
+        : QObject(parent), server(new QTcpServer(this)), clientSocket(nullptr), senderSocket(new QTcpSocket(this)) {}
+
+    void startServer()
+    {
+        // Start listening for incoming connections on port 12345
+        if (!server->listen(QHostAddress::Any, 12345)) {
+            std::cerr << "Server failed to start: " << server->errorString().toStdString() << std::endl;
+            return;
         }
+        std::cout << "Server started. Listening on port 12345." << std::endl;
+
+        // Accept new connections
+        connect(server, &QTcpServer::newConnection, this, &ReceiveWorker::handleNewConnection);
+
+        // Connect sender socket to send ACKs
+        senderSocket->connectToHost("127.0.0.1", 54321);
+        QObject::connect(senderSocket, &QTcpSocket::connected, []() {
+            std::cout << "Sender socket connected to ACK server." << std::endl;
+        });
     }
 
-protected:
-    void incomingConnection(qintptr socketDescriptor) override {
-        QTcpSocket *clientSocket = new QTcpSocket(this);
-        clientSocket->setSocketDescriptor(socketDescriptor);
+public slots:
+    void handleNewConnection()
+    {
+        clientSocket = server->nextPendingConnection();
+        std::cout << "New connection established with sender." << std::endl;
 
-        connect(clientSocket, &QTcpSocket::readyRead, this, &Server::readClient);
-        connect(clientSocket, &QTcpSocket::disconnected, clientSocket, &QTcpSocket::deleteLater);
+        // Connect to readyRead signal to receive data
+        connect(clientSocket, &QTcpSocket::readyRead, this, &ReceiveWorker::receivePacket);
     }
 
-private slots:
-    void readClient() {
-        QTcpSocket *clientSocket = qobject_cast<QTcpSocket *>(sender());
-        if (clientSocket) {
-            QByteArray data = clientSocket->readAll();
-            if (!data.isEmpty()) {
-                std::cout << "Received: " << data.toStdString() << std::endl;
-                QString processedData = processReceivedData(data);
-                clientSocket->write(processedData.toUtf8());
+    void receivePacket()
+    {
+        // Read data from the connected socket
+        while (clientSocket->bytesAvailable()) {
+            QByteArray data = clientSocket->read(2); // Read 2 bytes
+            if (data.size() == 2) {
+                uint16_t packet = (static_cast<uint8_t>(data[0]) << 8) | static_cast<uint8_t>(data[1]);
+
+                // Set the packet to the receive model
+                receive_Obj.setpacket(packet);
+
+                // Call the receive model
+                receive_Obj.call();
+
+                // Retrieve the output (data and ACK)
+                uint8_t ack = receive_Obj.getACK();
+                uint16_t processedData = receive_Obj.getdata();
+                qDebug() << processedData;
+
+                std::cout << "Received Packet: " << packet << ", Processed Data: " << processedData
+                          << ", ACK: " << static_cast<int>(ack) << std::endl;
+
+                // Send the ACK back through the sender socket
+                sendACK(ack);
             }
         }
     }
 
-private:
-    QString processReceivedData(const QString &data) {
-        // Prepend 'z' to the received string
-        return "z" + data;
+    void sendACK(uint8_t ack)
+    {
+        if (senderSocket->state() == QAbstractSocket::ConnectedState) {
+            QByteArray ackData;
+            ackData.append(static_cast<char>(ack));
+            senderSocket->write(ackData);
+            senderSocket->flush();
+            std::cout << "Sent ACK: " << static_cast<int>(ack) << std::endl;
+        } else {
+            std::cerr << "Sender socket is not connected." << std::endl;
+        }
     }
+
+private:
+    QTcpServer *server;
+    QTcpSocket *clientSocket; // Socket for receiving data
+    QTcpSocket *senderSocket; // Socket for sending ACKs
 };
 
-int main(int argc, char *argv[]) {
-    QCoreApplication a(argc, argv);
-    Server server;
-    return a.exec();
+int main(int argc, char *argv[])
+{
+    QCoreApplication app(argc, argv);
+
+    // Initialize the receive model
+    receive_Obj.initialize();
+
+    // Worker to handle TCP connections
+    ReceiveWorker worker;
+    worker.startServer();
+
+    // Run the event loop
+    return app.exec();
 }
 
 #include "main.moc"
