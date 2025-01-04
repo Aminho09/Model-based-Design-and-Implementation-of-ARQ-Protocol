@@ -16,10 +16,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-        rt_roundf_snf.cpp \
-        send.cpp \
-        wrapper.cpp
+    main.cpp \
+    outputsink.cpp \
+    rt_roundf_snf.cpp \
+    send.cpp \
+    InputSource.cpp \
+    udphandler.cpp \
+    wrapper.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -28,5 +31,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     complex_types.h \
+    outputsink.h \
     rt_roundf_snf.h \
-    send.h
+    send.h \
+    InputSource.h \
+    udphandler.h \
+    wrapper.h
