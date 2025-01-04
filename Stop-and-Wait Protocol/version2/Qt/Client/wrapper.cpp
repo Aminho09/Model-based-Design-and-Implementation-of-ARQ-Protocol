@@ -1,39 +1,23 @@
-#include <stdio.h>              // This example main program uses printf/fflush
-#include "send.h"                      // Model header file
+#include "wrapper.h"
 
-static send send_Obj;                  // Instance of model class
-
-void rt_OneStep(void);
-void rt_OneStep(void){
-  static bool OverrunFlag{ false };
-
-  // Disable interrupts here
-
-  // Check for overrun
-  if (OverrunFlag) {
-    send_Obj.getRTM()->setErrorStatus("Overrun");
-    return;
-  }
-
-  OverrunFlag = true;
-
-  // Save FPU context here (if necessary)
-  // Re-enable timer or interrupt here
-  // Set model inputs here
-
-  // Step the model
-  send_Obj.step();
-
-//  qDebug() << "step ran ";
-
-  // Get model outputs here
-
-  // Indicate task complete
-  OverrunFlag = false;
-
-  // Disable interrupts here
-  // Restore FPU context here (if necessary)
-  // Enable interrupts here
+Wrapper::Wrapper(QObject *parent) : QObject(parent){
+    connect(&timer, &QTimer::timeout, this, &Wrapper::onModelStep);
 }
 
+void Wrapper::startModel(int intervalMs) {
+    // Start the timer with the specified interval
+    timer.start(intervalMs);
+}
 
+void Wrapper::onInputReady(uint8_t ACK) {
+    // Set the inputs for the Simulink model
+    send_Obj.setACK(ACK);
+}
+
+void Wrapper::onModelStep() {
+    // Perform the Simulink model step function
+    send_Obj.step();
+
+    // Emit the signal with the model output
+    emit outputsReady(send_Obj.getpacket(), send_Obj.getready());
+}
