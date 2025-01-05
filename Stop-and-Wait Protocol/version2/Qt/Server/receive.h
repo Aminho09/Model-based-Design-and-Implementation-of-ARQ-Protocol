@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'receive'.
 //
-// Model version                  : 1.4
+// Model version                  : 1.9
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Tue Dec 17 22:04:11 2024
+// C/C++ source code generated on : Sun Jan  5 18:36:34 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -16,7 +16,6 @@
 #define receive_h_
 #include <stdbool.h>
 #include <stdint.h>
-#include <cmath>
 
 // Class declaration for model receive
 class receive final
@@ -38,6 +37,7 @@ class receive final
   struct ExtY_receive_T {
     uint8_t data;                      // '<Root>/data'
     uint8_t ACK;                       // '<Root>/ACK'
+    bool ready;                        // '<Root>/ready'
   };
 
   // Real-time Model Data Structure
@@ -62,14 +62,17 @@ class receive final
   // Real-Time Model get method
   receive::RT_MODEL_receive_T * getRTM();
 
-  // Root inport: '<Root>/packet' set method
-  void setpacket(uint16_t localArgInput);
+  // Root inports set method
+  void setExternalInputs(const ExtU_receive_T *pExtU_receive_T)
+  {
+    receive_U = *pExtU_receive_T;
+  }
 
-  // Root outport: '<Root>/data' get method
-  uint8_t getdata() const;
-
-  // Root outport: '<Root>/ACK' get method
-  uint8_t getACK() const;
+  // Root outports get method
+  const ExtY_receive_T &getExternalOutputs() const
+  {
+    return receive_Y;
+  }
 
   // model initialize function
   void initialize();
@@ -99,7 +102,7 @@ class receive final
 
   // private member function(s) for subsystem '<Root>'
   uint8_t receive_crc4(uint8_t b_value, float crc_tag);
-  bool receive_check_packet(uint16_t p, float t);
+  bool receive_check_packet(uint16_t p, float t) const;
   uint8_t receive_ack_crc(uint8_t b_value);
   void receive_send_data_ack(uint16_t p, uint8_t c, uint8_t *d, uint8_t *a,
     uint8_t *nc);
