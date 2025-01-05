@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'receive'.
 //
-// Model version                  : 1.9
+// Model version                  : 1.11
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 18:57:38 2025
+// C/C++ source code generated on : Sun Jan  5 22:44:52 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -170,15 +170,13 @@ void receive::call()
                           &receive_Y.ACK, &tmp);
     receive_DW.c_ack = tmp;
     receive_DW.tag = 1.0F - receive_DW.tag;
+    receive_DW.readyEventCounter++;
+  }
 
-    // Outport: '<Root>/ready' incorporates:
-    //   Outport: '<Root>/ACK'
-    //   Outport: '<Root>/data'
-
-    receive_Y.ready = true;
-  } else {
+  if (receive_DW.readyEventCounter > 0U) {
     // Outport: '<Root>/ready'
-    receive_Y.ready = false;
+    receive_Y.ready = !receive_Y.ready;
+    receive_DW.readyEventCounter--;
   }
 
   // End of Chart: '<Root>/Chart'
