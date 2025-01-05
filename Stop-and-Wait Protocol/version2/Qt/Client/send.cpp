@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.24
+// Model version                  : 1.26
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Wed Jan  1 12:46:21 2025
+// C/C++ source code generated on : Sun Jan  5 20:18:52 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -191,8 +191,6 @@ void send::step()
 
       // Outport: '<Root>/ready'
       send_Y.ready = true;
-      send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
-      send_DW.tag = 1.0F - send_DW.tag;
       send_DW.is_c2_send = send_IN_Send_packet;
     }
     break;
@@ -213,12 +211,12 @@ void send::step()
    default:
     // case IN_Wait_for_ack:
     if (send_checkACK(send_U.ACK, send_DW.c_ACK)) {
+      send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
+      send_DW.tag = 1.0F - send_DW.tag;
       send_DW.is_c2_send = send_IN_Idle;
     } else if (send_DW.temporalCounter_i1 >= 200) {
       // Outport: '<Root>/packet'
       send_Y.packet = send_calculation(send_DW.data, send_DW.tag);
-      send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
-      send_DW.tag = 1.0F - send_DW.tag;
 
       // Outport: '<Root>/ready'
       send_Y.ready = true;
