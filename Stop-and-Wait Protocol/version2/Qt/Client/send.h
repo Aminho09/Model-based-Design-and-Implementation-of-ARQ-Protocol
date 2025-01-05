@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.23
+// Model version                  : 1.24
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Wed Dec 18 09:13:24 2024
+// C/C++ source code generated on : Wed Jan  1 12:46:21 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -35,12 +35,11 @@ class send final
 
   // Block states (default storage) for system '<Root>'
   struct DW_send_T {
-    double cnt;                        // '<Root>/Chart1'
     float tag;                         // '<Root>/Chart1'
-    uint16_t temporalCounter_i1;       // '<Root>/Chart1'
     uint8_t c_ACK;                     // '<Root>/Chart1'
     uint8_t data;                      // '<Root>/Chart1'
     uint8_t is_c2_send;                // '<Root>/Chart1'
+    uint8_t temporalCounter_i1;        // '<Root>/Chart1'
     bool isNotInit;                    // '<Root>/Chart1'
   };
 
@@ -77,9 +76,6 @@ class send final
   // Real-Time Model get method
   send::RT_MODEL_send_T * getRTM();
 
-  // Real-Time Model set method
-  void setRTM(const RT_MODEL_send_T *psend_M);
-
   // Root inport: '<Root>/ACK' set method
   void setACK(uint8_t localArgInput);
 
@@ -88,18 +84,6 @@ class send final
 
   // Root outport: '<Root>/ready' get method
   bool getready() const;
-
-  // Block signals get method
-  const B_send_T &getBlockSignals() const;
-
-  // Block signals set method
-  void setBlockSignals(const B_send_T *pB_send_T);
-
-  // Block states get method
-  const DW_send_T &getDWork() const;
-
-  // Block states set method
-  void setDWork(const DW_send_T *pDW_send_T);
 
   // model initialize function
   void initialize();
