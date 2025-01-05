@@ -5,7 +5,7 @@
 //
 // Model version                  : 1.9
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 18:36:34 2025
+// C/C++ source code generated on : Sun Jan  5 18:57:38 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -62,17 +62,17 @@ class receive final
   // Real-Time Model get method
   receive::RT_MODEL_receive_T * getRTM();
 
-  // Root inports set method
-  void setExternalInputs(const ExtU_receive_T *pExtU_receive_T)
-  {
-    receive_U = *pExtU_receive_T;
-  }
+  // Root inport: '<Root>/packet' set method
+  void setpacket(uint16_t localArgInput);
 
-  // Root outports get method
-  const ExtY_receive_T &getExternalOutputs() const
-  {
-    return receive_Y;
-  }
+  // Root outport: '<Root>/data' get method
+  uint8_t getdata() const;
+
+  // Root outport: '<Root>/ACK' get method
+  uint8_t getACK() const;
+
+  // Root outport: '<Root>/ready' get method
+  bool getready() const;
 
   // model initialize function
   void initialize();

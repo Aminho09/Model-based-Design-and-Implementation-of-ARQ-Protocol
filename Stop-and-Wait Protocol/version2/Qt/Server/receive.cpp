@@ -5,7 +5,7 @@
 //
 // Model version                  : 1.9
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 18:36:34 2025
+// C/C++ source code generated on : Sun Jan  5 18:57:38 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -201,6 +201,30 @@ void receive::initialize()
 void receive::terminate()
 {
   // (no terminate code required)
+}
+
+// Root inport: '<Root>/packet' set method
+void receive::setpacket(uint16_t localArgInput)
+{
+  receive_U.packet = localArgInput;
+}
+
+// Root outport: '<Root>/data' get method
+uint8_t receive::getdata() const
+{
+  return receive_Y.data;
+}
+
+// Root outport: '<Root>/ACK' get method
+uint8_t receive::getACK() const
+{
+  return receive_Y.ACK;
+}
+
+// Root outport: '<Root>/ready' get method
+bool receive::getready() const
+{
+  return receive_Y.ready;
 }
 
 const char* receive::RT_MODEL_receive_T::getErrorStatus() const
