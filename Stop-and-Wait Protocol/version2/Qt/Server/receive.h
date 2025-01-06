@@ -103,7 +103,7 @@ class receive final
 
   // private member function(s) for subsystem '<Root>'
   uint8_t receive_crc4(uint8_t b_value, float crc_tag);
-  bool receive_check_packet(uint16_t p, float t) const;
+  bool receive_check_packet(uint16_t p, float t);
   uint8_t receive_ack_crc(uint8_t b_value);
   void receive_send_data_ack(uint16_t p, uint8_t c, uint8_t *d, uint8_t *a,
     uint8_t *nc);

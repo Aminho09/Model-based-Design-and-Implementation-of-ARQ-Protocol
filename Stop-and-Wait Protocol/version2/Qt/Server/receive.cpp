@@ -82,7 +82,7 @@ uint8_t receive::receive_crc4(uint8_t b_value, float crc_tag)
 }
 
 // Function for Chart: '<Root>/Chart'
-bool receive::receive_check_packet(uint16_t p, float t) const
+bool receive::receive_check_packet(uint16_t p, float t)
 {
   bool f;
   f = ((receive_crc4(static_cast<uint8_t>(p & 255U), receive_DW.tag) == p >> 9) &&
