@@ -2,6 +2,7 @@
 #define OUTPUTSINK_H
 
 #include <QObject>
+#include <QDebug>
 
 class OutputSink : public QObject
 {

@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
     InputSource input;
     Wrapper wrapper;
     OutputSink output;
-    QTextStream in(stdin);
-    QTextStream out(stdout);
+    QTextStream qin(stdin);
+    QString line;
 
     QObject::connect(&handler, &UdpHandler::messageReceived, &input, &InputSource::generateInput);
     QObject::connect(&input, &InputSource::inputReady, &wrapper, &Wrapper::onInputReady);
@@ -25,22 +25,21 @@ int main(int argc, char *argv[]) {
     QObject::connect(&output, &OutputSink::sendtoUDP, &handler, &UdpHandler::sendMessage);
 
     wrapper.startModel(20);
+    qDebug() << "Input your text (Type \"exit\" to close the program)";
 
-    while (true) { // Infinite loop
-        out << "Input: " << flush;
-        QString input = in.readLine();
+    do{
+        qDebug() << ">";
+        line = qin.readLine();
 
-        if (input == "exit") {
-            out << "Exiting the program." << endl;
+        if (line.toLower() == "exit"){
             QCoreApplication::quit();
             return 0;
         }
 
-        // Enqueue each character of the input string into the globalQueue
-        for (const QChar &ch : input) {
+        for (const QChar &ch : line) {
             globalQueue.enqueue(static_cast<uint8_t>(ch.unicode()));
         }
-    }
+    } while (globalQueue.isEmpty());
 
     return a.exec();
 }
