@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.27
+// Model version                  : 1.28
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 23:40:45 2025
+// C/C++ source code generated on : Tue Jan  7 10:28:16 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -52,6 +52,7 @@ class send final
   struct ExtY_send_T {
     uint16_t packet;                   // '<Root>/packet'
     bool ready;                        // '<Root>/ready'
+    bool empty;                        // '<Root>/empty'
   };
 
   // Real-time Model Data Structure
@@ -84,6 +85,9 @@ class send final
 
   // Root outport: '<Root>/ready' get method
   bool getready() const;
+
+  // Root outport: '<Root>/empty' get method
+  bool getempty() const;
 
   // model initialize function
   void initialize();

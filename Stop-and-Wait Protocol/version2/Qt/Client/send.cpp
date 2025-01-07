@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.27
+// Model version                  : 1.28
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 23:40:45 2025
+// C/C++ source code generated on : Tue Jan  7 10:28:16 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -191,7 +191,17 @@ void send::step()
 
       // Outport: '<Root>/ready'
       send_Y.ready = true;
+
+      // Outport: '<Root>/empty'
+      send_Y.empty = false;
       send_DW.is_c2_send = send_IN_Send_packet;
+    } else {
+      is_empty(&c);
+      if (c) {
+        // Outport: '<Root>/empty'
+        send_Y.empty = true;
+        send_DW.is_c2_send = send_IN_Idle;
+      }
     }
     break;
 
@@ -264,6 +274,12 @@ uint16_t send::getpacket() const
 bool send::getready() const
 {
   return send_Y.ready;
+}
+
+// Root outport: '<Root>/empty' get method
+bool send::getempty() const
+{
+  return send_Y.empty;
 }
 
 const char* send::RT_MODEL_send_T::getErrorStatus() const
