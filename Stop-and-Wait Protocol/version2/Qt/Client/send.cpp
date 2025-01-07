@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.28
+// Model version                  : 1.29
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Tue Jan  7 10:28:16 2025
+// C/C++ source code generated on : Tue Jan  7 10:56:05 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -174,9 +174,9 @@ void send::step()
   // Chart: '<Root>/Chart1' incorporates:
   //   Inport: '<Root>/ACK'
 
-  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 255U) {
-    send_DW.temporalCounter_i1 = static_cast<uint8_t>(send_DW.temporalCounter_i1
-      + 1);
+  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 511) {
+    send_DW.temporalCounter_i1 = static_cast<uint16_t>
+      (send_DW.temporalCounter_i1 + 1);
   }
 
   send_DW.isNotInit = true;
@@ -227,7 +227,7 @@ void send::step()
       send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
       send_DW.tag = 1.0F - send_DW.tag;
       send_DW.is_c2_send = send_IN_Idle;
-    } else if (send_DW.temporalCounter_i1 >= 200) {
+    } else if (send_DW.temporalCounter_i1 >= 400) {
       // Outport: '<Root>/packet'
       send_Y.packet = send_calculation(send_DW.data, send_DW.tag);
 
