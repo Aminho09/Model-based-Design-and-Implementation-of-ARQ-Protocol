@@ -5,6 +5,7 @@
 #include "inputsource.h"
 #include "wrapper.h"
 #include "outputsink.h"
+#include "consolereader.h"
 
 QQueue<uint8_t> globalQueue;
 
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
     InputSource input;
     Wrapper wrapper;
     OutputSink output;
+    ConsoleReader console;
     QTextStream qin(stdin);
     QString line;
 
@@ -23,23 +25,9 @@ int main(int argc, char *argv[]) {
     QObject::connect(&input, &InputSource::inputReady, &wrapper, &Wrapper::onInputReady);
     QObject::connect(&wrapper, &Wrapper::outputsReady, &output, &OutputSink::processOutput);
     QObject::connect(&output, &OutputSink::sendtoUDP, &handler, &UdpHandler::sendMessage);
+    QObject::connect(&output, &OutputSink::getInput, &console, &ConsoleReader::readInput);
 
-    wrapper.startModel(20);
-    qDebug() << "Input your text (Type \"exit\" to close the program)";
-
-    do{
-        qDebug() << ">";
-        line = qin.readLine();
-
-        if (line.toLower() == "exit"){
-            QCoreApplication::quit();
-            return 0;
-        }
-
-        for (const QChar &ch : line) {
-            globalQueue.enqueue(static_cast<uint8_t>(ch.unicode()));
-        }
-    } while (globalQueue.isEmpty());
+    wrapper.startModel(10);
 
     return a.exec();
 }

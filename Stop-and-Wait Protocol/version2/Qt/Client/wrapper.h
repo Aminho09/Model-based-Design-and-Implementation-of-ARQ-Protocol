@@ -15,17 +15,17 @@ public:
 
 signals:
     void modelStepCompleted();
-    void outputsReady(uint16_t packet, bool ready);
+    void outputsReady(uint16_t packet, bool ready, bool empty);
 
 public slots:
     void onInputReady(uint8_t ACK);
 
-private slots:
-    void onModelStep();
+
 
 private:
     send send_Obj;
     QTimer timer;
+    void onModelStep();
 
 };
 

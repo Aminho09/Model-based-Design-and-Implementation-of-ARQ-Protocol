@@ -12,9 +12,10 @@ public:
 
 signals:
     void sendtoUDP(uint16_t packet);
+    void getInput();
 
 public slots:
-    void processOutput(uint16_t packet, bool ready);
+    void processOutput(uint16_t packet, bool ready, bool empty);
 
 };
 

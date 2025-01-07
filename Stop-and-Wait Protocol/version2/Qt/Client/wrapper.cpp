@@ -22,5 +22,5 @@ void Wrapper::onModelStep() {
 //    qDebug() << "state:" << send_Obj.send_DW.is_c2_send;
 
     // Emit the signal with the model output
-    emit outputsReady(send_Obj.getpacket(), send_Obj.getready());
+    emit outputsReady(send_Obj.getpacket(), send_Obj.getready(), send_Obj.getempty());
 }

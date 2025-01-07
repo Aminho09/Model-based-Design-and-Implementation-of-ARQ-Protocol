@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    consolereader.cpp \
     main.cpp \
     outputsink.cpp \
     rt_roundf_snf.cpp \
@@ -31,6 +32,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     complex_types.h \
+    consolereader.h \
     outputsink.h \
     rt_roundf_snf.h \
     send.h \
