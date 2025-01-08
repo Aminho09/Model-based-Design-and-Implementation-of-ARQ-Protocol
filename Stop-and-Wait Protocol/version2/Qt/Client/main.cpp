@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     QObject::connect(&output, &OutputSink::sendtoUDP, &handler, &UdpHandler::sendMessage);
     QObject::connect(&output, &OutputSink::getInput, &console, &ConsoleReader::readInput);
 
-    wrapper.startModel(10);
+    wrapper.startModel(1);
 
     return a.exec();
 }

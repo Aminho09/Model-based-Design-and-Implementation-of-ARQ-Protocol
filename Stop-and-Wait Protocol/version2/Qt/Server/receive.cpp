@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'receive'.
 //
-// Model version                  : 1.11
+// Model version                  : 1.13
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan  5 22:44:52 2025
+// C/C++ source code generated on : Wed Jan  8 12:26:42 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -123,31 +123,18 @@ void receive::receive_send_data_ack(uint16_t p, uint8_t c, uint8_t *d, uint8_t
   *a, uint8_t *nc)
 {
   int32_t tmp;
-  int32_t tmp_0;
   *d = static_cast<uint8_t>(p & 255U);
-  if (c == 16) {
+  *a = static_cast<uint8_t>(static_cast<uint8_t>(receive_ack_crc(c) << 4) | c);
+  if (c == 15) {
     *nc = 0U;
   } else {
-    tmp_0 = static_cast<int32_t>(c + 1U);
+    tmp = static_cast<int32_t>(c + 1U);
     if (c + 1U > 255U) {
-      tmp_0 = 255;
+      tmp = 255;
     }
 
-    *nc = static_cast<uint8_t>(tmp_0);
+    *nc = static_cast<uint8_t>(tmp);
   }
-
-  tmp_0 = static_cast<int32_t>(c + 1U);
-  if (c + 1U > 255U) {
-    tmp_0 = 255;
-  }
-
-  tmp = static_cast<int32_t>(c + 1U);
-  if (c + 1U > 255U) {
-    tmp = 255;
-  }
-
-  *a = static_cast<uint8_t>(static_cast<uint8_t>(receive_ack_crc
-    (static_cast<uint8_t>(tmp)) << 4) | tmp_0);
 }
 
 // Model step function

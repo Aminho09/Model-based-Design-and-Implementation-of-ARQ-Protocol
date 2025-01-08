@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'send'.
 //
-// Model version                  : 1.29
+// Model version                  : 1.31
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Tue Jan  7 10:56:05 2025
+// C/C++ source code generated on : Wed Jan  8 12:29:15 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -156,11 +156,16 @@ uint16_t send::send_calculation(uint8_t input, float c_tag)
 // Function for Chart: '<Root>/Chart1'
 uint8_t send::send_reset_ACK(uint8_t ca)
 {
+  int32_t tmp;
   uint8_t new_ca;
-  if (ca == 255) {
+  tmp = static_cast<int32_t>(ca + 1U);
+  if (ca + 1U > 255U) {
+    tmp = 255;
+  }
+
+  new_ca = static_cast<uint8_t>(tmp);
+  if (static_cast<uint8_t>(tmp) == 16) {
     new_ca = 0U;
-  } else {
-    new_ca = static_cast<uint8_t>(ca + 1);
   }
 
   return new_ca;
@@ -174,7 +179,7 @@ void send::step()
   // Chart: '<Root>/Chart1' incorporates:
   //   Inport: '<Root>/ACK'
 
-  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 511) {
+  if (send_DW.isNotInit && send_DW.temporalCounter_i1 < 4095) {
     send_DW.temporalCounter_i1 = static_cast<uint16_t>
       (send_DW.temporalCounter_i1 + 1);
   }
@@ -227,7 +232,7 @@ void send::step()
       send_DW.c_ACK = send_reset_ACK(send_DW.c_ACK);
       send_DW.tag = 1.0F - send_DW.tag;
       send_DW.is_c2_send = send_IN_Idle;
-    } else if (send_DW.temporalCounter_i1 >= 400) {
+    } else if (send_DW.temporalCounter_i1 >= 4000) {
       // Outport: '<Root>/packet'
       send_Y.packet = send_calculation(send_DW.data, send_DW.tag);
 
@@ -245,7 +250,6 @@ void send::step()
 void send::initialize()
 {
   // SystemInitialize for Chart: '<Root>/Chart1'
-  send_DW.c_ACK = 1U;
   send_DW.tag = 1.0F;
 
   // Chart: '<Root>/Chart1'
