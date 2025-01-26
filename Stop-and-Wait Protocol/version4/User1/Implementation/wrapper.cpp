@@ -47,6 +47,7 @@ void Wrapper::sendAckCall(uint8_t ack){
         if (!queue.isEmpty())
             sendDataCall(queue.dequeue());
         else
+            user_Obj.reset_sender();
             emit messageSent();
     }
 }
@@ -69,6 +70,7 @@ void Wrapper::processOutputs(uint8_t data, uint8_t ack){
     }
     else if (receivedMessage.back() == '\r' && character == '\n'){
         receivedMessage.chop(1);
+        user_Obj.reset_receiver();
         emit showMessage(receivedMessage);
         receivedMessage = "";
     }

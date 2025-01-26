@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User1'.
 //
-// Model version                  : 1.14
+// Model version                  : 1.17
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Thu Jan  9 15:42:49 2025
+// C/C++ source code generated on : Sun Jan 26 14:47:16 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -23,6 +23,10 @@ const uint8_t User1_IN_Idle{ 1U };
 const uint8_t User1_IN_Wait_for_ack{ 2U };
 
 const int32_t User1_event_receive_packet_call{ 191 };
+
+const int32_t User1_event_reset_receiver{ 199 };
+
+const int32_t User1_event_reset_sender{ 197 };
 
 const int32_t User1_event_send_ACK_call{ 192 };
 
@@ -206,7 +210,8 @@ void User1::User1_chartstep_c2_User1(const int32_t *sfEvent)
   uint8_t tmp;
   bool out;
   if (User1_DW.is_send == User1_IN_Idle) {
-    if (*sfEvent == User1_event_send_data_call) {
+    switch (*sfEvent) {
+     case User1_event_send_data_call:
       // InitializeConditions for Outport: '<Root>/send_packet' incorporates:
       //   Inport: '<Root>/send_data'
 
@@ -217,6 +222,12 @@ void User1::User1_chartstep_c2_User1(const int32_t *sfEvent)
       // InitializeConditions for Outport: '<Root>/dequeue'
       User1_Y.dequeue = false;
       User1_DW.is_send = User1_IN_Wait_for_ack;
+      break;
+
+     case User1_event_reset_sender:
+      User1_DW.c_ACK = 0U;
+      User1_DW.send_tag = 1.0F;
+      break;
     }
   } else {
     // case IN_Wait_for_ack:
@@ -262,6 +273,9 @@ void User1::User1_chartstep_c2_User1(const int32_t *sfEvent)
     User1_DW.receive_c_ack = tmp;
     User1_DW.receive_tag = 1.0F - User1_DW.receive_tag;
     User1_DW.receive_readyEventCounter++;
+  } else if (*sfEvent == User1_event_reset_receiver) {
+    User1_DW.receive_c_ack = 0U;
+    User1_DW.receive_tag = 1.0F;
   }
 }
 
@@ -278,50 +292,62 @@ void User1::User1_sw_Init()
 // Output and update for function-call system: '<Root>/sw'
 void User1::User1_sw(int32_t controlPortIdx)
 {
-  int32_t inputEventFiredFlag;
+  int32_t i;
   int32_t sfEvent;
-  int8_t rtb_inputevents[4];
+  int8_t rtb_inputevents[6];
 
   // Chart: '<Root>/sw' incorporates:
   //   TriggerPort: '<S1>/input events'
 
-  rtb_inputevents[0] = 0;
-  rtb_inputevents[1] = 0;
-  rtb_inputevents[2] = 0;
-  rtb_inputevents[3] = 0;
+  for (i = 0; i < 6; i++) {
+    rtb_inputevents[i] = 0;
+  }
+
   rtb_inputevents[controlPortIdx] = 2;
-  inputEventFiredFlag = 0;
+  i = 0;
   if (rtb_inputevents[0U] == 2) {
-    inputEventFiredFlag = 1;
+    i = 1;
     sfEvent = User1_event_send_data_call;
     User1_chartstep_c2_User1(&sfEvent);
   }
 
   if (rtb_inputevents[1U] == 2) {
-    inputEventFiredFlag = 1;
+    i = 1;
     sfEvent = User1_event_send_ACK_call;
     User1_chartstep_c2_User1(&sfEvent);
   }
 
   if (rtb_inputevents[2U] == 2) {
-    inputEventFiredFlag = 1;
+    i = 1;
     sfEvent = User1_event_receive_packet_call;
     User1_chartstep_c2_User1(&sfEvent);
   }
 
   if (rtb_inputevents[3U] == 2) {
-    inputEventFiredFlag = 1;
+    i = 1;
     sfEvent = User1_event_timeout;
     User1_chartstep_c2_User1(&sfEvent);
   }
 
-  if ((inputEventFiredFlag != 0) && (User1_DW.send_readyEventCounter > 0U)) {
+  if (rtb_inputevents[4U] == 2) {
+    i = 1;
+    sfEvent = User1_event_reset_sender;
+    User1_chartstep_c2_User1(&sfEvent);
+  }
+
+  if (rtb_inputevents[5U] == 2) {
+    i = 1;
+    sfEvent = User1_event_reset_receiver;
+    User1_chartstep_c2_User1(&sfEvent);
+  }
+
+  if ((i != 0) && (User1_DW.send_readyEventCounter > 0U)) {
     // Outport: '<Root>/send_ready'
     User1_Y.send_ready = !User1_Y.send_ready;
     User1_DW.send_readyEventCounter--;
   }
 
-  if ((inputEventFiredFlag != 0) && (User1_DW.receive_readyEventCounter > 0U)) {
+  if ((i != 0) && (User1_DW.receive_readyEventCounter > 0U)) {
     // Outport: '<Root>/receive_ready'
     User1_Y.receive_ready = !User1_Y.receive_ready;
     User1_DW.receive_readyEventCounter--;
@@ -339,6 +365,32 @@ void User1::receive_packet_call()
   User1_sw(2);
 
   // End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/receive_packet_call' 
+}
+
+// Model step function
+void User1::reset_receiver()
+{
+  // Chart: '<Root>/sw'
+
+  // RootInportFunctionCallGenerator generated from: '<Root>/reset_receiver'
+
+  // Chart: '<Root>/sw'
+  User1_sw(5);
+
+  // End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/reset_receiver' 
+}
+
+// Model step function
+void User1::reset_sender()
+{
+  // Chart: '<Root>/sw'
+
+  // RootInportFunctionCallGenerator generated from: '<Root>/reset_sender'
+
+  // Chart: '<Root>/sw'
+  User1_sw(4);
+
+  // End of Outputs for RootInportFunctionCallGenerator generated from: '<Root>/reset_sender' 
 }
 
 // Model step function
@@ -385,12 +437,12 @@ void User1::initialize()
 {
   // SystemInitialize for Chart: '<Root>/sw'
 
-  // SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/timeout' 
+  // SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/reset_receiver' 
 
   // SystemInitialize for Chart: '<Root>/sw'
   User1_sw_Init();
 
-  // End of SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/timeout' 
+  // End of SystemInitialize for RootInportFunctionCallGenerator generated from: '<Root>/reset_receiver' 
 }
 
 // Model terminate function

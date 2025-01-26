@@ -11,7 +11,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , handler(nullptr, "127.0.0.1", 12346, "127.0.0.1", 12345)
+    , handler(nullptr, "127.0.0.1", 12345, "127.0.0.1", 12345)
 {
     ui->setupUi(this);
 
@@ -99,37 +99,12 @@ void MainWindow::sendMessage()
     ui->messageInput->clear();
 
     emit addToQueue(message);
-
-
-
-//     Get bot response and simulate a delay before showing it
-//    QString botResponse = getBotResponse(message);
-//    QTimer::singleShot(500, [this, botResponse]() {
-//        addMessage(QString("<b>Bot:</b> %1").arg(botResponse), false);
-//    });
-
 }
 
 void MainWindow::showReceivedMessage(QString message){
-    addMessage(QString("<b>Bot:</b> %1").arg(message), false);
+    addMessage(QString("<b>Event User:</b> %1").arg(message), false);
 }
 
 void MainWindow::messaageSent(){
     ui->statusBar->showMessage("Message sent", 2000);
-}
-
-QString MainWindow::getBotResponse(const QString &message)
-{
-    // Simple predefined responses
-    if (message.contains("hello", Qt::CaseInsensitive)) {
-        return "Hello! How can I help you today?";
-    } else if (message.contains("how are you", Qt::CaseInsensitive)) {
-        return "I'm just a bot, but I'm doing great! Thanks for asking.";
-    } else if (message.contains("time", Qt::CaseInsensitive)) {
-        return QString("The current time is %1.").arg(QTime::currentTime().toString("hh:mm:ss"));
-    } else if (message.contains("bye", Qt::CaseInsensitive)) {
-        return "Goodbye! Have a great day!";
-    } else {
-        return "I'm not sure how to respond to that. Can you try asking something else?";
-    }
 }

@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User1'.
 //
-// Model version                  : 1.14
+// Model version                  : 1.17
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Thu Jan  9 15:42:49 2025
+// C/C++ source code generated on : Sun Jan 26 14:47:16 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -107,6 +107,12 @@ class User1 final
 
   // model step function
   void receive_packet_call();
+
+  // model step function
+  void reset_receiver();
+
+  // model step function
+  void reset_sender();
 
   // model step function
   void send_ACK_call();
