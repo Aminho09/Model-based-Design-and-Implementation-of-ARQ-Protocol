@@ -64,7 +64,6 @@ void Wrapper::receivePacketCall(uint16_t packet){
 
 void Wrapper::processOutputs(uint8_t data, uint8_t ack){
     char character = static_cast<char>(data);
-
     if (receivedMessage.isEmpty()){
         receivedMessage.append(character);
     }

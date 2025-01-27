@@ -8,10 +8,11 @@
 #include <QTime>
 #include <QScrollBar>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, const QString &localIP, int localPort,
+                       const QString &targetIP, int targetPort)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , handler(nullptr, "127.0.0.1", 12345, "127.0.0.1", 12345)
+    , handler(nullptr, localIP, localPort, targetIP, targetPort)
 {
     ui->setupUi(this);
 
@@ -106,5 +107,5 @@ void MainWindow::showReceivedMessage(QString message){
 }
 
 void MainWindow::messaageSent(){
-    ui->statusBar->showMessage("Message sent", 2000);
+    ui->statusBar->showMessage("Message sent", 0);
 }

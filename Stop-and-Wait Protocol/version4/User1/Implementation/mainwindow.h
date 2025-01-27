@@ -20,7 +20,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr, const QString &localIP = QString(), int localPort = 0,
+                        const QString &targetIP = QString(), int targetPort = 0);
     ~MainWindow();
 
 signals:
