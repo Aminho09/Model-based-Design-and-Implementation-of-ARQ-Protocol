@@ -1,7 +1,7 @@
 #include "wrapper.h"
 
 Wrapper::Wrapper(QObject *parent) : QObject(parent){
-    connect(&timeoutTimer, &QTimer::timeout, this, &Wrapper::setTimeoutEvent);
+    connect(&timeoutTimer, &QTimer::timeout, this, &Wrapper::timeout);
     connect(&stepTimer, &QTimer::timeout, this, &Wrapper::onModelStep);
 }
 
@@ -43,25 +43,25 @@ void Wrapper::storeString(const QString message){
     }
 }
 
-void Wrapper::setDataEvent(uint8_t data){
+void Wrapper::sendData(uint8_t data){
     data_event = data_event xor true;
     user_Obj.setsend_data(data);
     user_Obj.setsend_data_call(data_event);
 }
 
-void Wrapper::setAckEvent(uint8_t ack){
+void Wrapper::sendAck(uint8_t ack){
     ack_event = ack_event xor true;
     user_Obj.setsend_ACK(ack);
     user_Obj.setsend_ACK_call(ack_event);
 }
 
-void Wrapper::setPacketEvent(uint16_t packet){
+void Wrapper::receivePacket(uint16_t packet){
     packet_event = packet_event xor true;
     user_Obj.setreceive_packet(packet);
     user_Obj.setreceive_packet_call(packet_event);
 }
 
-void Wrapper::setTimeoutEvent(){
+void Wrapper::timeout(){
     timeout_event = timeout_event xor true;
     user_Obj.settimeout(timeout_event);
 }
@@ -103,7 +103,7 @@ void Wrapper::processOutputs(bool send_ready, bool receive_ready, bool dequeue){
     else{
         timeoutTimer.stop();
         if (!queue.isEmpty())
-            setDataEvent(queue.dequeue());
+            sendData(queue.dequeue());
         else
             resetSender();
             emit messageSent();

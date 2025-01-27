@@ -23,8 +23,8 @@ signals:
 
 public slots:
     void storeString(const QString message);
-    void sendAckCall(uint8_t ack);
-    void receivePacketCall(uint16_t packet);
+    void sendAck(uint8_t ack);
+    void receivePacket(uint16_t packet);
 
 private:
     User1 user_Obj;
@@ -33,8 +33,8 @@ private:
     QTimer timer;
 
     void callModel();
-    void timeoutCall();
-    void sendDataCall(uint8_t data);
+    void timeout();
+    void sendData(uint8_t data);
     void processOutputs(uint8_t data, uint8_t ack);
 };
 

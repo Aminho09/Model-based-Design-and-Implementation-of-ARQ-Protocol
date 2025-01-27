@@ -1,7 +1,7 @@
 #include "wrapper.h"
 
 Wrapper::Wrapper(QObject *parent) : QObject(parent){
-    connect(&timer, &QTimer::timeout, this, &Wrapper::timeoutCall);
+    connect(&timer, &QTimer::timeout, this, &Wrapper::timeout);
 }
 
 void Wrapper::storeString(const QString message){
@@ -13,10 +13,10 @@ void Wrapper::storeString(const QString message){
 
     uint8_t first_char = queue.dequeue();
     user_Obj.initialize();
-    sendDataCall(first_char);
+    sendData(first_char);
 }
 
-void Wrapper::sendDataCall(uint8_t data){
+void Wrapper::sendData(uint8_t data){
     bool send_ready = user_Obj.getsend_ready();
 
     user_Obj.setsend_data(data);
@@ -29,7 +29,7 @@ void Wrapper::sendDataCall(uint8_t data){
         emit sendOutputReady(user_Obj.getsend_packet());
 }
 
-void Wrapper::timeoutCall(){
+void Wrapper::timeout(){
     bool send_ready = user_Obj.getsend_ready();
 
     user_Obj.timeout();
@@ -38,21 +38,21 @@ void Wrapper::timeoutCall(){
         emit sendOutputReady(user_Obj.getsend_packet());
 }
 
-void Wrapper::sendAckCall(uint8_t ack){
+void Wrapper::sendAck(uint8_t ack){
     user_Obj.setsend_ACK(ack);
     user_Obj.send_ACK_call();
 
     if (user_Obj.getdequeue() == true){
         timer.stop();
         if (!queue.isEmpty())
-            sendDataCall(queue.dequeue());
+            sendData(queue.dequeue());
         else
             user_Obj.reset_sender();
             emit messageSent();
     }
 }
 
-void Wrapper::receivePacketCall(uint16_t packet){
+void Wrapper::receivePacket(uint16_t packet){
     bool receive_ready = user_Obj.getreceive_ready();
 
     user_Obj.setreceive_packet(packet);

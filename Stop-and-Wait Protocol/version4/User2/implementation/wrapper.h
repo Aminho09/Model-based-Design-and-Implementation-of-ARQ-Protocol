@@ -23,8 +23,8 @@ signals:
 public slots:
     void initialize();
     void storeString(const QString message);
-    void setAckEvent(uint8_t ack);
-    void setPacketEvent(uint16_t packet);
+    void sendAck(uint8_t ack);
+    void receivePacket(uint16_t packet);
 
 private:
     User2 user_Obj;
@@ -43,8 +43,8 @@ private:
 
     void startModel(int intervalMs);
     void onModelStep();
-    void setTimeoutEvent();
-    void setDataEvent(uint8_t data);
+    void timeout();
+    void sendData(uint8_t data);
     void processOutputs(bool send_ready, bool receive_ready, bool dequeue);
     void resetSender();
     void resetReceiver();
