@@ -1,0 +1,36 @@
+GeneratorModel for create::cpp::qt {
+
+	const PROJECT : string = "user"
+
+	const FOLDER : string = "implementation"
+
+	statechart user {
+
+		feature Outlet {
+			targetProject = PROJECT
+			targetFolder = FOLDER
+			libraryTargetFolder = "implementation/generated-lib"
+		}
+		
+		feature GeneralFeatures{
+			timerService = true
+		}
+		
+		feature FunctionInlining{
+			inlineChoices = true
+			inlineEnterRegion = true
+			inlineEnterSequences = true
+			inlineEntries = true
+			inlineEntryActions = true
+			inlineExitActions = true
+			inlineExitRegion = true
+			inlineExitSequences = true
+			inlineReactions = true
+		}
+		
+		feature OutEventAPI {
+ 			observables =  true 
+ 			getters =  false 
+ 		}
+	}
+}
