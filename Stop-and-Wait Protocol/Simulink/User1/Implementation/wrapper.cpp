@@ -4,6 +4,10 @@ Wrapper::Wrapper(QObject *parent) : QObject(parent){
     connect(&timer, &QTimer::timeout, this, &Wrapper::timeout);
 }
 
+void Wrapper::initialize(){
+    user_Obj.initialize();
+}
+
 void Wrapper::storeString(const QString message){
     for (QChar ch: message) {
             queue.enqueue(static_cast<uint8_t>(ch.unicode()));
@@ -12,7 +16,6 @@ void Wrapper::storeString(const QString message){
     queue.enqueue(static_cast<uint8_t>('\n'));
 
     uint8_t first_char = queue.dequeue();
-    user_Obj.initialize();
     sendData(first_char);
 }
 

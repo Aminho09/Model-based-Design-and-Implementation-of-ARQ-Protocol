@@ -13,7 +13,7 @@ class Wrapper : public QObject
     Q_OBJECT
 public:
     explicit Wrapper(QObject *parent = nullptr);
-
+    void initialize();
 
 signals:
     void sendOutputReady(uint16_t packet);

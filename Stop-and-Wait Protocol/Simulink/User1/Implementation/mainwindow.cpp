@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent, const QString &localIP, int localPort,
     QObject::connect(&wrapper, &Wrapper::messageSent, this, &MainWindow::messaageSent);
     QObject::connect(&handler, &UdpHandler::ackReceived, &wrapper, &Wrapper::sendAck);
     QObject::connect(&handler, &UdpHandler::packetReceived, &wrapper, &Wrapper::receivePacket);
+
+    wrapper.initialize();
 }
 
 MainWindow::~MainWindow()
