@@ -37,10 +37,10 @@ void Wrapper::storeString(const QString message){
     queue.enqueue(static_cast<uint8_t>('\r'));
     queue.enqueue(static_cast<uint8_t>('\n'));
 
-    if (!initial_flag){
-        initialize();
-        initial_flag = true;
-    }
+//    if (!initial_flag){
+//        initialize();
+//        initial_flag = true;
+//    }
 }
 
 void Wrapper::sendData(uint8_t data){
