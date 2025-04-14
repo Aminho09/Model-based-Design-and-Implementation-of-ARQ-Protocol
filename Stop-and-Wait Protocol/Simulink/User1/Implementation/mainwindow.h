@@ -25,11 +25,15 @@ public:
     ~MainWindow();
 
 signals:
-    void addToQueue(QString message);
+    void sendData(uint8_t data);
+    void reset_sender();
+    void reset_receiver();
 
 public slots:
     void showReceivedMessage(QString message);
-    void messaageSent();
+    void send_next();
+    void messageSent();
+    void processOutputs(uint8_t data);
 
 private slots:
     void sendMessage();     // Slot for sending messages
@@ -40,6 +44,8 @@ private:
     QVBoxLayout *chatLayout;     // Layout for dynamically added chat messages
     UdpHandler handler;
     Wrapper wrapper;
+    QQueue<uint8_t> queue;
+    QString receivedMessage = "";
 
     QString getBotResponse(const QString &message); // Function to generate bot responses
     void addMessage(const QString &message, bool isUser); // Add message to the scrollable chat UI

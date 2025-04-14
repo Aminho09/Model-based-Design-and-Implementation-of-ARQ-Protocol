@@ -16,15 +16,19 @@ public:
     void initialize();
 
 signals:
-    void sendOutputReady(uint16_t packet);
-    void ackReady(uint8_t ack);
+    void send_packet(uint16_t packet);
+    void receive_ACK(uint8_t ack);
+    void receive_data(uint8_t data);
     void showMessage(QString message);
     void messageSent();
+    void dequeue();
 
 public slots:
-    void storeString(const QString message);
+    void sendData(uint8_t data);
     void sendAck(uint8_t ack);
     void receivePacket(uint16_t packet);
+    void reset_sender();
+    void reset_receiver();
 
 private:
     User1 user_Obj;
@@ -34,8 +38,6 @@ private:
 
     void callModel();
     void timeout();
-    void sendData(uint8_t data);
-    void processOutputs(uint8_t data, uint8_t ack);
 };
 
 #endif // WRAPPER_H

@@ -8,17 +8,6 @@ void Wrapper::initialize(){
     user_Obj.initialize();
 }
 
-void Wrapper::storeString(const QString message){
-    for (QChar ch: message) {
-            queue.enqueue(static_cast<uint8_t>(ch.unicode()));
-    }
-    queue.enqueue(static_cast<uint8_t>('\r'));
-    queue.enqueue(static_cast<uint8_t>('\n'));
-
-    uint8_t first_char = queue.dequeue();
-    sendData(first_char);
-}
-
 void Wrapper::sendData(uint8_t data){
     bool send_ready = user_Obj.getsend_ready();
 
@@ -29,7 +18,7 @@ void Wrapper::sendData(uint8_t data){
         timer.start(4000);
 
     if (send_ready != user_Obj.getsend_ready())
-        emit sendOutputReady(user_Obj.getsend_packet());
+        emit send_packet(user_Obj.getsend_packet());
 }
 
 void Wrapper::timeout(){
@@ -38,7 +27,7 @@ void Wrapper::timeout(){
     user_Obj.timeout();
 
     if (send_ready != user_Obj.getsend_ready())
-        emit sendOutputReady(user_Obj.getsend_packet());
+        emit send_packet(user_Obj.getsend_packet());
 }
 
 void Wrapper::sendAck(uint8_t ack){
@@ -47,11 +36,7 @@ void Wrapper::sendAck(uint8_t ack){
 
     if (user_Obj.getdequeue() == true){
         timer.stop();
-        if (!queue.isEmpty())
-            sendData(queue.dequeue());
-        else
-            user_Obj.reset_sender();
-            emit messageSent();
+        emit dequeue();
     }
 }
 
@@ -62,24 +47,16 @@ void Wrapper::receivePacket(uint16_t packet){
     user_Obj.receive_packet_call();
 
     if (receive_ready != user_Obj.getreceive_ready())
-        processOutputs(user_Obj.getreceive_data(), user_Obj.getreceive_ACK());
+        emit receive_ACK(user_Obj.getreceive_ACK());
+        emit receive_data(user_Obj.getreceive_data());
 }
 
-void Wrapper::processOutputs(uint8_t data, uint8_t ack){
-    char character = static_cast<char>(data);
-    if (receivedMessage.isEmpty()){
-        receivedMessage.append(character);
-    }
-    else if (receivedMessage.back() == '\r' && character == '\n'){
-        receivedMessage.chop(1);
-        user_Obj.reset_receiver();
-        emit showMessage(receivedMessage);
-        receivedMessage = "";
-    }
-    else {
-        receivedMessage.append(character);
-    }
-    emit ackReady(ack);
+void Wrapper::reset_sender(){
+    user_Obj.reset_sender();
+}
+
+void Wrapper::reset_receiver(){
+    user_Obj.reset_receiver();
 }
 
 
