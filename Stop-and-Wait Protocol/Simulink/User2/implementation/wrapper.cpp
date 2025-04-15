@@ -1,7 +1,6 @@
 #include "wrapper.h"
 
 Wrapper::Wrapper(QObject *parent) : QObject(parent){
-    connect(&timeoutTimer, &QTimer::timeout, this, &Wrapper::timeout);
     connect(&stepTimer, &QTimer::timeout, this, &Wrapper::onModelStep);
 }
 
@@ -10,7 +9,6 @@ void Wrapper::initialize(){
     user_Obj.setsend_data_call(data_event);
     user_Obj.setsend_ACK(ack_event);
     user_Obj.setreceive_packet_call(packet_event);
-    user_Obj.settimeout(timeout_event);
     user_Obj.setreset_sender(reset_send_event);
     user_Obj.setreset_receiver(reset_receive_event);
     user_Obj.step();
@@ -61,11 +59,6 @@ void Wrapper::receivePacket(uint16_t packet){
     user_Obj.setreceive_packet_call(packet_event);
 }
 
-void Wrapper::timeout(){
-    timeout_event = timeout_event xor true;
-    user_Obj.settimeout(timeout_event);
-}
-
 void Wrapper::resetSender(){
     reset_send_event = reset_send_event xor true;
     user_Obj.setreset_sender(reset_send_event);
@@ -97,11 +90,7 @@ void Wrapper::processOutputs(bool send_ready, bool receive_ready, bool dequeue){
         emit ackReady(user_Obj.getreceive_ACK());
     }
 
-    if (!dequeue){
-        timeoutTimer.start(4000);
-    }
-    else{
-        timeoutTimer.stop();
+    if (dequeue){
         if (!queue.isEmpty())
             sendData(queue.dequeue());
         else

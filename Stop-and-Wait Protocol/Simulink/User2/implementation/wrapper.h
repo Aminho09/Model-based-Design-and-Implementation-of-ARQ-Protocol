@@ -30,7 +30,6 @@ private:
     User2 user_Obj;
     QQueue<uint8_t> queue;
     QString receivedMessage = "";
-    QTimer timeoutTimer;
     QTimer stepTimer;
 
     bool initial_flag = false;
@@ -43,7 +42,6 @@ private:
 
     void startModel(int intervalMs);
     void onModelStep();
-    void timeout();
     void sendData(uint8_t data);
     void processOutputs(bool send_ready, bool receive_ready, bool dequeue);
     void resetSender();
