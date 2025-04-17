@@ -37,15 +37,17 @@ MainWindow::MainWindow(QWidget *parent, const QString &localIP, int localPort,
     // Connect send button to sendMessage function
     connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::sendMessage);
 
-    connect(this, &MainWindow::addToQueue, &wrapper, &Wrapper::storeString);
-    connect(&wrapper, &Wrapper::sendOutputReady, &handler, &UdpHandler::sendPacket);
-    connect(&wrapper, &Wrapper::ackReady, &handler, &UdpHandler::sendAck);
-    connect(&wrapper, &Wrapper::showMessage, this, &MainWindow::showReceivedMessage);
-    connect(&wrapper, &Wrapper::messageSent, this, &MainWindow::messaageSent);
+    connect(&wrapper, &Wrapper::sendPacket, &handler, &UdpHandler::sendPacket);
+    connect(&wrapper, &Wrapper::receiveAck, &handler, &UdpHandler::sendAck);
     connect(&handler, &UdpHandler::ackReceived, &wrapper, &Wrapper::sendAck);
     connect(&handler, &UdpHandler::packetReceived, &wrapper, &Wrapper::receivePacket);
+    connect(&wrapper, &Wrapper::dequeue, this, &MainWindow::sendNext);
+    connect(this, &MainWindow::sendData, &wrapper, &Wrapper::sendData);
+    connect(this, &MainWindow::resetSender, &wrapper, &Wrapper::resetSender);
+    connect(this, &MainWindow::resetReceiver, &wrapper, &Wrapper::resetReceiver);
+    connect(&wrapper, &Wrapper::receiveData, this, &MainWindow::receivedData);
 
-    wrapper.initialize();
+    wrapper.initialize(1);
 }
 
 MainWindow::~MainWindow()
@@ -101,13 +103,44 @@ void MainWindow::sendMessage()
     addMessage(QString("<b>You:</b> %1").arg(message), true);
     ui->messageInput->clear();
 
-    emit addToQueue(message);
+    for (QChar ch: message) {
+            queue.enqueue(static_cast<uint8_t>(ch.unicode()));
+    }
+    queue.enqueue(static_cast<uint8_t>('\r'));
+    queue.enqueue(static_cast<uint8_t>('\n'));
+    emit sendData(queue.dequeue());
+}
+
+void MainWindow::sendNext(){
+    qDebug() << "Next";
+    if (!queue.isEmpty())
+        emit sendData(queue.dequeue());
+    else {
+        emit resetSender();
+        messageSent();
+    }
+}
+
+void MainWindow::receivedData(uint8_t data){
+    char character = static_cast<char>(data);
+    if (receivedMessage.isEmpty()){
+        receivedMessage.append(character);
+    }
+    else if (receivedMessage.back() == '\r' && character == '\n'){
+        receivedMessage.chop(1);
+        emit resetReceiver();
+        showReceivedMessage(receivedMessage);
+        receivedMessage = "";
+    }
+    else {
+        receivedMessage.append(character);
+    }
 }
 
 void MainWindow::showReceivedMessage(QString message){
     addMessage(QString("<b>Function-call User:</b> %1").arg(message), false);
 }
 
-void MainWindow::messaageSent(){
+void MainWindow::messageSent(){
     ui->statusBar->showMessage("Message sent", 0);
 }

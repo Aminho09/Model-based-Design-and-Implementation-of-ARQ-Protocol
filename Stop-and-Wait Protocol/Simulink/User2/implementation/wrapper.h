@@ -15,39 +15,33 @@ public:
     explicit Wrapper(QObject *parent = nullptr);
 
 signals:
-    void sendOutputReady(uint16_t packet);
-    void ackReady(uint8_t ack);
+    void sendPacket(uint16_t packet);
+    void receiveAck(uint8_t ack);
+    void receiveData(uint8_t data);
+    void dequeue();
     void showMessage(QString message);
     void messageSent();
 
 public slots:
-    void initialize();
-    void storeString(const QString message);
+    void initialize(int intervalMS);
     void sendAck(uint8_t ack);
+    void sendData(uint8_t data);
     void receivePacket(uint16_t packet);
+    void resetSender();
+    void resetReceiver();
 
 private:
     User2 user_Obj;
-    QQueue<uint8_t> queue;
-    QString receivedMessage = "";
-    QTimer timeoutTimer;
     QTimer stepTimer;
 
-    bool initial_flag = false;
     bool data_event = false;
     bool ack_event = false;
     bool packet_event = false;
-    bool timeout_event = false;
     bool reset_send_event = false;
     bool reset_receive_event = false;
 
-    void startModel(int intervalMs);
     void onModelStep();
-    void timeout();
-    void sendData(uint8_t data);
     void processOutputs(bool send_ready, bool receive_ready, bool dequeue);
-    void resetSender();
-    void resetReceiver();
 };
 
 #endif // WRAPPER_H

@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User2'.
 //
-// Model version                  : 1.11
+// Model version                  : 1.18
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan 26 17:41:32 2025
+// C/C++ source code generated on : Thu Apr 17 16:30:07 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -29,6 +29,9 @@ class User2 final
     float receive_tag;                 // '<Root>/sw'
     uint32_t send_readyEventCounter;   // '<Root>/sw'
     uint32_t receive_readyEventCounter;// '<Root>/sw'
+    uint32_t dequeueEventCounter;      // '<Root>/sw'
+    uint32_t previousTicks;            // '<Root>/sw'
+    uint16_t temporalCounter_i1;       // '<Root>/sw'
     uint8_t c_ACK;                     // '<Root>/sw'
     uint8_t receive_c_ack;             // '<Root>/sw'
     uint8_t is_send;                   // '<Root>/sw'
@@ -36,7 +39,7 @@ class User2 final
 
   // Zero-crossing (trigger) state
   struct PrevZCX_User2_T {
-    ZCSigState sw_Trig_ZCE[6];         // '<Root>/sw'
+    ZCSigState sw_Trig_ZCE[5];         // '<Root>/sw'
   };
 
   // External inputs (root inport signals with default storage)
@@ -47,7 +50,6 @@ class User2 final
     bool send_data_call;               // '<Root>/send_data_call'
     bool send_ACK_call;                // '<Root>/send_ACK_call'
     bool receive_packet_call;          // '<Root>/receive_packet_call'
-    bool timeout;                      // '<Root>/timeout'
     bool reset_sender;                 // '<Root>/reset_sender'
     bool reset_receiver;               // '<Root>/reset_receiver'
   };
@@ -65,6 +67,16 @@ class User2 final
   // Real-time Model Data Structure
   struct RT_MODEL_User2_T {
     const char * volatile errorStatus;
+
+    //
+    //  Timing:
+    //  The following substructure contains information regarding
+    //  the timing information for the model.
+
+    struct {
+      uint32_t clockTick0;
+    } Timing;
+
     const char* getErrorStatus() const;
     void setErrorStatus(const char* const volatile aErrorStatus);
   };
@@ -101,9 +113,6 @@ class User2 final
 
   // Root inport: '<Root>/receive_packet_call' set method
   void setreceive_packet_call(bool localArgInput);
-
-  // Root inport: '<Root>/timeout' set method
-  void settimeout(bool localArgInput);
 
   // Root inport: '<Root>/reset_sender' set method
   void setreset_sender(bool localArgInput);
@@ -161,9 +170,9 @@ class User2 final
   // private member function(s) for subsystem '<Root>'
   uint8_t User2_ack_crc(uint8_t b_value);
   bool User2_checkACK(uint8_t ack, uint8_t check);
+  uint8_t User2_reset_ACK(uint8_t ca);
   uint8_t User2_crc4(uint8_t b_value, float t);
   uint16_t User2_calculation(uint8_t input, float c_tag);
-  uint8_t User2_reset_ACK(uint8_t ca);
   bool User2_check_packet(uint16_t p, float t);
   void User2_send_data_ack(uint16_t p, uint8_t c, uint8_t *d, uint8_t *a,
     uint8_t *nc);

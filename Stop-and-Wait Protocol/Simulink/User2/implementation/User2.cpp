@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User2'.
 //
-// Model version                  : 1.11
+// Model version                  : 1.18
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Sun Jan 26 17:41:32 2025
+// C/C++ source code generated on : Thu Apr 17 16:30:07 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -32,8 +32,6 @@ const int32_t User2_event_reset_sender{ 197 };
 const int32_t User2_event_send_ACK_call{ 192 };
 
 const int32_t User2_event_send_data_call{ 193 };
-
-const int32_t User2_event_timeout{ 185 };
 
 extern float rt_roundf(float u);
 
@@ -71,6 +69,24 @@ bool User2::User2_checkACK(uint8_t ack, uint8_t check)
   uint8_t ack_value;
   ack_value = static_cast<uint8_t>(ack & 15);
   return (ack >> 4 == User2_ack_crc(ack_value)) && (ack_value == check);
+}
+
+// Function for Chart: '<Root>/sw'
+uint8_t User2::User2_reset_ACK(uint8_t ca)
+{
+  int32_t tmp;
+  uint8_t new_ca;
+  tmp = static_cast<int32_t>(ca + 1U);
+  if (ca + 1U > 255U) {
+    tmp = 255;
+  }
+
+  new_ca = static_cast<uint8_t>(tmp);
+  if (static_cast<uint8_t>(tmp) == 16) {
+    new_ca = 0U;
+  }
+
+  return new_ca;
 }
 
 float rt_roundf(float u)
@@ -159,24 +175,6 @@ uint16_t User2::User2_calculation(uint8_t input, float c_tag)
 }
 
 // Function for Chart: '<Root>/sw'
-uint8_t User2::User2_reset_ACK(uint8_t ca)
-{
-  int32_t tmp;
-  uint8_t new_ca;
-  tmp = static_cast<int32_t>(ca + 1U);
-  if (ca + 1U > 255U) {
-    tmp = 255;
-  }
-
-  new_ca = static_cast<uint8_t>(tmp);
-  if (static_cast<uint8_t>(tmp) == 16) {
-    new_ca = 0U;
-  }
-
-  return new_ca;
-}
-
-// Function for Chart: '<Root>/sw'
 bool User2::User2_check_packet(uint16_t p, float t)
 {
   bool f;
@@ -218,9 +216,7 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
       User2_Y.send_packet = User2_calculation(User2_U.send_data,
         User2_DW.send_tag);
       User2_DW.send_readyEventCounter++;
-
-      // Outport: '<Root>/dequeue'
-      User2_Y.dequeue = false;
+      User2_DW.temporalCounter_i1 = 0U;
       User2_DW.is_send = User2_IN_Wait_for_ack;
       break;
 
@@ -229,8 +225,17 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
       User2_DW.send_tag = 1.0F;
       break;
     }
-  } else {
+
     // case IN_Wait_for_ack:
+  } else if (User2_DW.temporalCounter_i1 >= 400) {
+    // Outport: '<Root>/send_packet' incorporates:
+    //   Inport: '<Root>/send_data'
+
+    User2_Y.send_packet = User2_calculation(User2_U.send_data, User2_DW.send_tag);
+    User2_DW.send_readyEventCounter++;
+    User2_DW.temporalCounter_i1 = 0U;
+    User2_DW.is_send = User2_IN_Wait_for_ack;
+  } else {
     if (*sfEvent == User2_event_send_ACK_call) {
       // Inport: '<Root>/send_ACK'
       out = User2_checkACK(User2_U.send_ACK, User2_DW.c_ACK);
@@ -241,18 +246,8 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
     if (out) {
       User2_DW.c_ACK = User2_reset_ACK(User2_DW.c_ACK);
       User2_DW.send_tag = 1.0F - User2_DW.send_tag;
-
-      // Outport: '<Root>/dequeue'
-      User2_Y.dequeue = true;
+      User2_DW.dequeueEventCounter++;
       User2_DW.is_send = User2_IN_Idle;
-    } else if (*sfEvent == User2_event_timeout) {
-      // Outport: '<Root>/send_packet' incorporates:
-      //   Inport: '<Root>/send_data'
-
-      User2_Y.send_packet = User2_calculation(User2_U.send_data,
-        User2_DW.send_tag);
-      User2_DW.send_readyEventCounter++;
-      User2_DW.is_send = User2_IN_Wait_for_ack;
     }
   }
 
@@ -284,7 +279,8 @@ void User2::step()
 {
   int32_t inputEventFiredFlag;
   int32_t sfEvent;
-  bool zcEvent[6];
+  uint32_t elapsedTicks;
+  bool zcEvent[5];
   bool zcEvent_0;
   ZCEventType tmp;
 
@@ -306,26 +302,31 @@ void User2::step()
                  User2_U.receive_packet_call) && (User2_PrevZCX.sw_Trig_ZCE[2]
     != UNINITIALIZED_ZCSIG));
 
-  // Inport: '<Root>/timeout'
-  zcEvent[3] = (((User2_PrevZCX.sw_Trig_ZCE[3] == POS_ZCSIG) != User2_U.timeout)
-                && (User2_PrevZCX.sw_Trig_ZCE[3] != UNINITIALIZED_ZCSIG));
-
   // Inport: '<Root>/reset_sender'
-  zcEvent[4] = (((User2_PrevZCX.sw_Trig_ZCE[4] == POS_ZCSIG) !=
-                 User2_U.reset_sender) && (User2_PrevZCX.sw_Trig_ZCE[4] !=
+  zcEvent[3] = (((User2_PrevZCX.sw_Trig_ZCE[3] == POS_ZCSIG) !=
+                 User2_U.reset_sender) && (User2_PrevZCX.sw_Trig_ZCE[3] !=
     UNINITIALIZED_ZCSIG));
 
   // Inport: '<Root>/reset_receiver'
-  zcEvent[5] = (((User2_PrevZCX.sw_Trig_ZCE[5] == POS_ZCSIG) !=
-                 User2_U.reset_receiver) && (User2_PrevZCX.sw_Trig_ZCE[5] !=
+  zcEvent[4] = (((User2_PrevZCX.sw_Trig_ZCE[4] == POS_ZCSIG) !=
+                 User2_U.reset_receiver) && (User2_PrevZCX.sw_Trig_ZCE[4] !=
     UNINITIALIZED_ZCSIG));
   zcEvent_0 = false;
-  for (inputEventFiredFlag = 0; inputEventFiredFlag < 6; inputEventFiredFlag++)
+  for (inputEventFiredFlag = 0; inputEventFiredFlag < 5; inputEventFiredFlag++)
   {
     zcEvent_0 = (zcEvent_0 || zcEvent[inputEventFiredFlag]);
   }
 
   if (zcEvent_0) {
+    elapsedTicks = (&User2_M)->Timing.clockTick0 - User2_DW.previousTicks;
+    User2_DW.previousTicks = (&User2_M)->Timing.clockTick0;
+    elapsedTicks += User2_DW.temporalCounter_i1;
+    if (elapsedTicks <= 511U) {
+      User2_DW.temporalCounter_i1 = static_cast<uint16_t>(elapsedTicks);
+    } else {
+      User2_DW.temporalCounter_i1 = 511U;
+    }
+
     inputEventFiredFlag = 0;
     if (zcEvent[0]) {
       // Inport: '<Root>/send_data_call'
@@ -379,23 +380,6 @@ void User2::step()
     }
 
     if (zcEvent[3]) {
-      // Inport: '<Root>/timeout'
-      if (User2_U.timeout) {
-        tmp = RISING_ZCEVENT;
-      } else {
-        tmp = FALLING_ZCEVENT;
-      }
-    } else {
-      tmp = NO_ZCEVENT;
-    }
-
-    if (static_cast<int32_t>(tmp) != 0) {
-      inputEventFiredFlag = 1;
-      sfEvent = User2_event_timeout;
-      User2_chartstep_c2_User2(&sfEvent);
-    }
-
-    if (zcEvent[4]) {
       // Inport: '<Root>/reset_sender'
       if (User2_U.reset_sender) {
         tmp = RISING_ZCEVENT;
@@ -412,7 +396,7 @@ void User2::step()
       User2_chartstep_c2_User2(&sfEvent);
     }
 
-    if (zcEvent[5]) {
+    if (zcEvent[4]) {
       // Inport: '<Root>/reset_receiver'
       if (User2_U.reset_receiver) {
         tmp = RISING_ZCEVENT;
@@ -441,6 +425,12 @@ void User2::step()
       User2_Y.receive_ready = !User2_Y.receive_ready;
       User2_DW.receive_readyEventCounter--;
     }
+
+    if ((inputEventFiredFlag != 0) && (User2_DW.dequeueEventCounter > 0U)) {
+      // Outport: '<Root>/dequeue'
+      User2_Y.dequeue = !User2_Y.dequeue;
+      User2_DW.dequeueEventCounter--;
+    }
   }
 
   // Inport: '<Root>/send_data_call'
@@ -452,14 +442,19 @@ void User2::step()
   // Inport: '<Root>/receive_packet_call'
   User2_PrevZCX.sw_Trig_ZCE[2] = User2_U.receive_packet_call;
 
-  // Inport: '<Root>/timeout'
-  User2_PrevZCX.sw_Trig_ZCE[3] = User2_U.timeout;
-
   // Inport: '<Root>/reset_sender'
-  User2_PrevZCX.sw_Trig_ZCE[4] = User2_U.reset_sender;
+  User2_PrevZCX.sw_Trig_ZCE[3] = User2_U.reset_sender;
 
   // Inport: '<Root>/reset_receiver'
-  User2_PrevZCX.sw_Trig_ZCE[5] = User2_U.reset_receiver;
+  User2_PrevZCX.sw_Trig_ZCE[4] = User2_U.reset_receiver;
+
+  // Update absolute time for base rate
+  // The "clockTick0" counts the number of times the code of this task has
+  //  been executed. The resolution of this integer timer is 0.01, which is the step size
+  //  of the task. Size of "clockTick0" ensures timer will not overflow during the
+  //  application lifespan selected.
+
+  (&User2_M)->Timing.clockTick0++;
 }
 
 // Model initialize function
@@ -467,23 +462,19 @@ void User2::initialize()
 {
   {
     int32_t i;
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 5; i++) {
       User2_PrevZCX.sw_Trig_ZCE[i] = UNINITIALIZED_ZCSIG;
     }
 
     // SystemInitialize for Chart: '<Root>/sw'
     User2_DW.send_tag = 1.0F;
-
-    // SystemInitialize for Outport: '<Root>/dequeue' incorporates:
-    //   Chart: '<Root>/sw'
-
-    User2_Y.dequeue = true;
-
-    // SystemInitialize for Chart: '<Root>/sw'
     User2_DW.receive_tag = 1.0F;
 
     // Chart: '<Root>/sw'
     User2_DW.is_send = User2_IN_Idle;
+
+    // Enable for Chart: '<Root>/sw'
+    User2_DW.previousTicks = (&User2_M)->Timing.clockTick0;
   }
 }
 
@@ -527,12 +518,6 @@ void User2::setsend_ACK_call(bool localArgInput)
 void User2::setreceive_packet_call(bool localArgInput)
 {
   User2_U.receive_packet_call = localArgInput;
-}
-
-// Root inport: '<Root>/timeout' set method
-void User2::settimeout(bool localArgInput)
-{
-  User2_U.timeout = localArgInput;
 }
 
 // Root inport: '<Root>/reset_sender' set method
