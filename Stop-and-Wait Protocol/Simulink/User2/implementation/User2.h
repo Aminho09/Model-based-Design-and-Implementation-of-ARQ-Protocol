@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User2'.
 //
-// Model version                  : 1.14
+// Model version                  : 1.18
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Mon Apr 14 23:37:27 2025
+// C/C++ source code generated on : Thu Apr 17 16:30:07 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -29,6 +29,7 @@ class User2 final
     float receive_tag;                 // '<Root>/sw'
     uint32_t send_readyEventCounter;   // '<Root>/sw'
     uint32_t receive_readyEventCounter;// '<Root>/sw'
+    uint32_t dequeueEventCounter;      // '<Root>/sw'
     uint32_t previousTicks;            // '<Root>/sw'
     uint16_t temporalCounter_i1;       // '<Root>/sw'
     uint8_t c_ACK;                     // '<Root>/sw'
@@ -169,10 +170,10 @@ class User2 final
   // private member function(s) for subsystem '<Root>'
   uint8_t User2_ack_crc(uint8_t b_value);
   bool User2_checkACK(uint8_t ack, uint8_t check);
-  uint8_t User2_crc4(uint8_t b_value, float t) const;
-  uint16_t User2_calculation(uint8_t input, float c_tag);
   uint8_t User2_reset_ACK(uint8_t ca);
-  bool User2_check_packet(uint16_t p, float t) const;
+  uint8_t User2_crc4(uint8_t b_value, float t);
+  uint16_t User2_calculation(uint8_t input, float c_tag);
+  bool User2_check_packet(uint16_t p, float t);
   void User2_send_data_ack(uint16_t p, uint8_t c, uint8_t *d, uint8_t *a,
     uint8_t *nc);
   void User2_chartstep_c2_User2(const int32_t *sfEvent);

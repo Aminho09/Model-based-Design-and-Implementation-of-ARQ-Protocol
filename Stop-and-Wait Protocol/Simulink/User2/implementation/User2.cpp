@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'User2'.
 //
-// Model version                  : 1.14
+// Model version                  : 1.18
 // Simulink Coder version         : 24.2 (R2024b) 21-Jun-2024
-// C/C++ source code generated on : Mon Apr 14 23:37:27 2025
+// C/C++ source code generated on : Thu Apr 17 16:30:07 2025
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -71,6 +71,24 @@ bool User2::User2_checkACK(uint8_t ack, uint8_t check)
   return (ack >> 4 == User2_ack_crc(ack_value)) && (ack_value == check);
 }
 
+// Function for Chart: '<Root>/sw'
+uint8_t User2::User2_reset_ACK(uint8_t ca)
+{
+  int32_t tmp;
+  uint8_t new_ca;
+  tmp = static_cast<int32_t>(ca + 1U);
+  if (ca + 1U > 255U) {
+    tmp = 255;
+  }
+
+  new_ca = static_cast<uint8_t>(tmp);
+  if (static_cast<uint8_t>(tmp) == 16) {
+    new_ca = 0U;
+  }
+
+  return new_ca;
+}
+
 float rt_roundf(float u)
 {
   float y;
@@ -90,7 +108,7 @@ float rt_roundf(float u)
 }
 
 // Function for Chart: '<Root>/sw'
-uint8_t User2::User2_crc4(uint8_t b_value, float t) const
+uint8_t User2::User2_crc4(uint8_t b_value, float t)
 {
   float tmp;
   int32_t i;
@@ -157,25 +175,7 @@ uint16_t User2::User2_calculation(uint8_t input, float c_tag)
 }
 
 // Function for Chart: '<Root>/sw'
-uint8_t User2::User2_reset_ACK(uint8_t ca)
-{
-  int32_t tmp;
-  uint8_t new_ca;
-  tmp = static_cast<int32_t>(ca + 1U);
-  if (ca + 1U > 255U) {
-    tmp = 255;
-  }
-
-  new_ca = static_cast<uint8_t>(tmp);
-  if (static_cast<uint8_t>(tmp) == 16) {
-    new_ca = 0U;
-  }
-
-  return new_ca;
-}
-
-// Function for Chart: '<Root>/sw'
-bool User2::User2_check_packet(uint16_t p, float t) const
+bool User2::User2_check_packet(uint16_t p, float t)
 {
   bool f;
   f = ((User2_crc4(static_cast<uint8_t>(p & 255U), User2_DW.receive_tag) == p >>
@@ -216,9 +216,6 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
       User2_Y.send_packet = User2_calculation(User2_U.send_data,
         User2_DW.send_tag);
       User2_DW.send_readyEventCounter++;
-
-      // Outport: '<Root>/dequeue'
-      User2_Y.dequeue = false;
       User2_DW.temporalCounter_i1 = 0U;
       User2_DW.is_send = User2_IN_Wait_for_ack;
       break;
@@ -228,8 +225,17 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
       User2_DW.send_tag = 1.0F;
       break;
     }
-  } else {
+
     // case IN_Wait_for_ack:
+  } else if (User2_DW.temporalCounter_i1 >= 400) {
+    // Outport: '<Root>/send_packet' incorporates:
+    //   Inport: '<Root>/send_data'
+
+    User2_Y.send_packet = User2_calculation(User2_U.send_data, User2_DW.send_tag);
+    User2_DW.send_readyEventCounter++;
+    User2_DW.temporalCounter_i1 = 0U;
+    User2_DW.is_send = User2_IN_Wait_for_ack;
+  } else {
     if (*sfEvent == User2_event_send_ACK_call) {
       // Inport: '<Root>/send_ACK'
       out = User2_checkACK(User2_U.send_ACK, User2_DW.c_ACK);
@@ -240,19 +246,8 @@ void User2::User2_chartstep_c2_User2(const int32_t *sfEvent)
     if (out) {
       User2_DW.c_ACK = User2_reset_ACK(User2_DW.c_ACK);
       User2_DW.send_tag = 1.0F - User2_DW.send_tag;
-
-      // Outport: '<Root>/dequeue'
-      User2_Y.dequeue = true;
+      User2_DW.dequeueEventCounter++;
       User2_DW.is_send = User2_IN_Idle;
-    } else if (User2_DW.temporalCounter_i1 >= 400) {
-      // Outport: '<Root>/send_packet' incorporates:
-      //   Inport: '<Root>/send_data'
-
-      User2_Y.send_packet = User2_calculation(User2_U.send_data,
-        User2_DW.send_tag);
-      User2_DW.send_readyEventCounter++;
-      User2_DW.temporalCounter_i1 = 0U;
-      User2_DW.is_send = User2_IN_Wait_for_ack;
     }
   }
 
@@ -430,6 +425,12 @@ void User2::step()
       User2_Y.receive_ready = !User2_Y.receive_ready;
       User2_DW.receive_readyEventCounter--;
     }
+
+    if ((inputEventFiredFlag != 0) && (User2_DW.dequeueEventCounter > 0U)) {
+      // Outport: '<Root>/dequeue'
+      User2_Y.dequeue = !User2_Y.dequeue;
+      User2_DW.dequeueEventCounter--;
+    }
   }
 
   // Inport: '<Root>/send_data_call'
@@ -467,13 +468,6 @@ void User2::initialize()
 
     // SystemInitialize for Chart: '<Root>/sw'
     User2_DW.send_tag = 1.0F;
-
-    // SystemInitialize for Outport: '<Root>/dequeue' incorporates:
-    //   Chart: '<Root>/sw'
-
-    User2_Y.dequeue = true;
-
-    // SystemInitialize for Chart: '<Root>/sw'
     User2_DW.receive_tag = 1.0F;
 
     // Chart: '<Root>/sw'
