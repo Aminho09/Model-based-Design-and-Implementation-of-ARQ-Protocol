@@ -112,7 +112,6 @@ void MainWindow::sendMessage()
 }
 
 void MainWindow::sendNext(){
-    qDebug() << "Next";
     if (!queue.isEmpty())
         emit sendData(queue.dequeue());
     else {

@@ -20,12 +20,6 @@ void Wrapper::onModelStep(){
     bool receive_ready = user_Obj.getreceive_ready();
     bool dequeue = user_Obj.getdequeue();
     user_Obj.step();
-    if (dequeue != user_Obj.getdequeue())
-        qDebug() << "dequeued!";
-    if (send_ready != user_Obj.getsend_ready())
-        qDebug() << "sent!";
-    if (receive_ready != user_Obj.getreceive_ready())
-        qDebug() << "received!: " << user_Obj.getreceive_ACK();
     processOutputs(send_ready != user_Obj.getsend_ready(),
                    receive_ready != user_Obj.getreceive_ready(),
                    dequeue != user_Obj.getdequeue());
@@ -35,21 +29,18 @@ void Wrapper::sendData(uint8_t data){
     data_event = data_event xor true;
     user_Obj.setsend_data(data);
     user_Obj.setsend_data_call(data_event);
-    qDebug() << "data sent: " << static_cast<char>(data);
 }
 
 void Wrapper::sendAck(uint8_t ack){
     ack_event = ack_event xor true;
     user_Obj.setsend_ACK(ack);
     user_Obj.setsend_ACK_call(ack_event);
-    qDebug() << "ack sent: " << ack;
 }
 
 void Wrapper::receivePacket(uint16_t packet){
     packet_event = packet_event xor true;
     user_Obj.setreceive_packet(packet);
     user_Obj.setreceive_packet_call(packet_event);
-    qDebug() << "packet received: " << static_cast<char>(packet&0x00FF);
 }
 
 void Wrapper::resetSender(){
