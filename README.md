@@ -35,9 +35,9 @@ The repository is organized as follows:
 
 ```
 Model-based-Design-and-Implementation-of-ARQ-Protocol/
-├── Simulink/                  # Simulink Stateflow models and their Qt-based chat application integration
+├── Simulink/             # Simulink Stateflow models and their Qt-based chat application integration
 ├── itemisCREATE/         # itemis CREATE model and its Qt-based chat application integration
-└── README.md                  # Project overview and instructions
+└── README.md             # Project overview and instructions
 ```
 
 ## Getting Started
@@ -84,5 +84,23 @@ Model-based-Design-and-Implementation-of-ARQ-Protocol/
 3. **Send Messages**:
    - Type and send messages from one instance; the Stop-and-Wait ARQ protocol ensures reliable delivery to the other instance.
 
-4. **Observe Protocol Behavior**:
-   - The application logs can be used to observe the ARQ protocol's operations, such as acknowledgments and retransmissions.
+## Design Details
+
+### Stop-and-Wait ARQ Protocol
+
+The Stop-and-Wait ARQ protocol is a fundamental method for error control in data transmission. It operates by sending one frame at a time and waiting for an acknowledgment before sending the next frame. If an acknowledgment isn't received within a specified timeout, the frame is retransmitted. This ensures reliable communication over unreliable or noisy channels.
+
+### Modeling Approach
+
+- **Simulink Stateflow**:
+  - Utilized to create a visual state machine representing the ARQ protocol's behavior.
+  - Includes two concurrent states `send` and `receive` doing send and receive behaviors.
+  - Transitions are based on events like `send_data`, `send_ack`, `receive_packet`, and `Timeout`.
+  - Functions which calculate the headers and check pakcets and acknowledgements.
+    You can see the statechart in the picture below:
+    ![SimulinkChart](https://github.com/user-attachments/assets/51e39c33-bc9b-476c-a23f-ae771ff5d6b0)
+
+
+- **itemis CREATE**:
+  - Provided a modele-based approach to define the state machine.
+  - Allowed for clear definitions of states, events, and transitions in a structured format.
