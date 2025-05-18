@@ -9,7 +9,6 @@ This project demonstrates a model-based approach to designing and implementing t
 - [Usage](#usage)
 - [Design Details](#design-details)
 - [Contributors](#contributors)
-- [License](#license)
 
 ## Overview
 
@@ -65,7 +64,7 @@ Model-based-Design-and-Implementation-of-ARQ-Protocol/
    ```
 
 3. **Open the Project**:
-   - Use Qt Creator to open the `.pro` file located in the `QtChatApplication` directory.
+   - Use Qt Creator to open the `.pro` file located in the `implementation` directories.
 
 4. **Build the Project**:
    - Configure the project with the appropriate kit and build the application.
@@ -98,9 +97,32 @@ The Stop-and-Wait ARQ protocol is a fundamental method for error control in data
   - Transitions are based on events like `send_data`, `send_ack`, `receive_packet`, and `Timeout`.
   - Functions which calculate the headers and check pakcets and acknowledgements.
     You can see the statechart in the picture below:
-    ![SimulinkChart](https://github.com/user-attachments/assets/51e39c33-bc9b-476c-a23f-ae771ff5d6b0)
+ 
+    <img src="https://github.com/user-attachments/assets/51e39c33-bc9b-476c-a23f-ae771ff5d6b0" alt="Simulink Statechart" width="800" height="400"/>
 
 
 - **itemis CREATE**:
   - Provided a modele-based approach to define the state machine.
-  - Allowed for clear definitions of states, events, and transitions in a structured format.
+  - Includes two concurrent states `send` and `receive` doing send and receive behaviors.
+  - Transitions are based on events like `send_data`, `send_ack`, `receive_packet`, and `Timeout`.
+  - Functions which calculate the headers and check pakcets and acknowledgements.
+  - Supported platform-independent C++ code generation, ensuring seamless integration with the Qt chat application.
+  - Offered simulation and validation tools to verify correct state transitions and event handling before deployment.
+    You can see the statechart in the picture below:
+
+    <img src="https://github.com/user-attachments/assets/f2f15af7-5a2a-4a46-beb6-551b1ad0be0a" alt="itemisCREATE Statechart" width="800">
+
+### Code Generation and Integration
+
+- **C++ Code Generation**:
+  - Both modeling tools support automatic generation of C++ code from the defined state machines.
+  - This code encapsulates the logic of the ARQ protocol, handling state transitions and events.
+  - Note that MATLAB Simulink doesn't generate Qt C++, so the pure C++ generated code needs to wrap into Qt C++.
+
+- **Integration with Qt**:
+  - The generated C++ code is integrated into a Qt-based chat application.
+  - Qt handles the GUI and network communication, while the ARQ logic ensures message reliability.
+ 
+## Contributing
+
+Contributions to enhance the models or the chat application are welcome. Please fork the repository and submit a pull request with your improvements.
